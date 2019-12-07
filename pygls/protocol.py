@@ -15,6 +15,7 @@
 # limitations under the License.                                           #
 ############################################################################
 import asyncio
+import enum
 import functools
 import json
 import logging
@@ -369,8 +370,12 @@ class JsonRPCProtocol(asyncio.Protocol):
         if not data:
             return
 
+        def default(o):
+            if isinstance(o, enum.Enum):
+                return o.value
+            return o.__dict__
         try:
-            body = json.dumps(data, default=lambda o: o.__dict__)
+            body = json.dumps(data, default=default)
             content_length = len(body.encode(self.CHARSET)) if body else 0
 
             response = (
