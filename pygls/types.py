@@ -690,6 +690,14 @@ class Location:
         self.uri = uri
         self.range = range
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, Location)
+            and self.uri == other.uri
+            and self.range == other.range)
+
+    def __repr__(self):
+        return "{}:{}".format(self.uri, self.range)
 
 class LocationLink:
     def __init__(self,
@@ -757,9 +765,10 @@ class Position:
         self.character = character
 
     def __eq__(self, other):
-        if self.line == other.line and self.character == other.character:
-            return True
-        return False
+        return (
+            isinstance(other, Position)
+            and self.line == other.line
+            and self.character == other.character)
 
     def __ge__(self, other):
         line_gt = self.line > other.line
@@ -827,6 +836,15 @@ class Range:
     def __init__(self, start: Position, end: Position) -> None:
         self.start = start
         self.end = end
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, Range)
+            and self.start == other.start
+            and self.end == other.end)
+
+    def __repr__(self):
+        return '{}-{}'.format(self.start, self.end)
 
 
 class ReferenceContext:
