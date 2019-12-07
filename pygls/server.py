@@ -21,7 +21,7 @@ import sys
 from concurrent.futures import Future, ThreadPoolExecutor
 from multiprocessing.pool import ThreadPool
 from threading import Event
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Any
 
 from pygls.types import (ApplyWorkspaceEditResponse, ConfigCallbackType, Diagnostic, MessageType,
                          RegistrationParams, TextDocumentSyncKind, UnregistrationParams,
@@ -244,7 +244,7 @@ class LanguageServer(Server):
         """
         return self.lsp.fm.command(command_name)
 
-    def feature(self, feature_name: str, **options: Dict) -> Callable:
+    def feature(self, feature_name: str, **options: Any) -> Callable:
         """Decorator used to register LSP features.
 
         Example:
