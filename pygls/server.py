@@ -21,7 +21,7 @@ import sys
 from concurrent.futures import Future, ThreadPoolExecutor
 from multiprocessing.pool import ThreadPool
 from threading import Event
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
 
 from pygls.types import (ApplyWorkspaceEditResponse, ConfigCallbackType, Diagnostic, MessageType,
                          RegistrationParams, TextDocumentSyncKind, UnregistrationParams,
@@ -123,8 +123,8 @@ class Server:
         self._max_workers = max_workers
         self._server = None
         self._stop_event = None
-        self._thread_pool = None
-        self._thread_pool_executor = None
+        self._thread_pool: Optional[ThreadPool] = None
+        self._thread_pool_executor: Optional[ThreadPoolExecutor] = None
         self.sync_kind = sync_kind
 
         if IS_WIN:
