@@ -21,7 +21,7 @@ import sys
 from concurrent.futures import Future, ThreadPoolExecutor
 from multiprocessing.pool import ThreadPool
 from threading import Event
-from typing import Callable, Dict, List, Optional, Any
+from typing import Callable, Dict, List, Optional, Any, TypeVar, Callable
 
 from pygls.types import (ApplyWorkspaceEditResponse, ConfigCallbackType, Diagnostic, MessageType,
                          RegistrationParams, TextDocumentSyncKind, UnregistrationParams,
@@ -34,6 +34,7 @@ from .workspace import Workspace
 
 logger = logging.getLogger(__name__)
 
+F = TypeVar('F', bound=Callable)
 
 async def aio_readline(loop, executor, stop_event, rfile, proxy):
     """Reads data from stdin in separate thread (asynchronously)."""
@@ -234,7 +235,7 @@ class LanguageServer(Server):
         """Sends apply edit request to the client."""
         return self.lsp.apply_edit(edit, label)
 
-    def command(self, command_name: str) -> Callable:
+    def command(self, command_name: str) -> Callable[[F], F]:
         """Decorator used to register custom commands.
 
         Example:
@@ -244,7 +245,7 @@ class LanguageServer(Server):
         """
         return self.lsp.fm.command(command_name)
 
-    def feature(self, feature_name: str, **options: Any) -> Callable:
+    def feature(self, feature_name: str, **options: Any) -> Callable[[F], F]:
         """Decorator used to register LSP features.
 
         Example:
