@@ -127,7 +127,7 @@ class Server:
         self._thread_pool_executor: Optional[ThreadPoolExecutor] = None
         self.sync_kind = sync_kind
 
-        if IS_WIN:
+        if sys.platform == 'win32' and IS_WIN:
             asyncio.set_event_loop(asyncio.ProactorEventLoop())
         else:
             asyncio.set_event_loop(asyncio.SelectorEventLoop())
