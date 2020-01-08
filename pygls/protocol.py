@@ -71,8 +71,7 @@ def call_user_feature(base_func, method_name):
 
 
 def default_serializer(o):
-    """JSON serializer for complex objects.
-    """
+    """JSON serializer for complex objects."""
     if isinstance(o, enum.Enum):
         return o.value
     return o.__dict__
