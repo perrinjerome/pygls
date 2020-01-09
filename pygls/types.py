@@ -98,7 +98,7 @@ class CodeActionContext:
         self.only = only
 
 
-class CodeActionKind(enum.Enum):
+class CodeActionKind(str, enum.Enum):
     QuickFix = 'quickfix'
     Refactor = 'refactor'
     RefactorExtract = 'refactor.extract'
@@ -266,7 +266,7 @@ class CompletionItemAbstract:
         self.preselectedSupport = preselected_support
 
 
-class CompletionItemKind(enum.Enum):
+class CompletionItemKind(enum.IntEnum):
     Text = 1
     Method = 2
     Function = 3
@@ -322,7 +322,7 @@ class CompletionRegistrationOptions:
         self.triggerCharacters = trigger_characters
 
 
-class CompletionTriggerKind(enum.Enum):
+class CompletionTriggerKind(enum.IntEnum):
     Invoked = 1
     TriggerCharacter = 2
     TriggerForIncompleteCompletions = 3
@@ -371,7 +371,7 @@ class DeleteFileOptions:
         self.ignore_if_exists = ignore_if_exists
 
 
-class DiagnosticSeverity(enum.Enum):
+class DiagnosticSeverity(enum.IntEnum):
     Error = 1
     Warning = 2
     Information = 3
@@ -467,7 +467,7 @@ class DocumentFormattingParams:
         self.options = options
 
 
-class DocumentHighlightKind(enum.Enum):
+class DocumentHighlightKind(enum.IntEnum):
     Text = 1
     Read = 2
     Write = 3
@@ -570,14 +570,14 @@ class ExecuteCommandOptions:
         self.commands = commands
 
 
-class FailureHandlingKind(enum.Enum):
+class FailureHandlingKind(str, enum.Enum):
     Abort = 'abort'
     Transactional = 'transactional'
     TextOnlyTransactional = 'textOnlyTransactional'
     FailureHandlingKind = 'undo'
 
 
-class FileChangeType(enum.Enum):
+class FileChangeType(enum.IntEnum):
     Created = 1
     Changed = 2
     Deleted = 3
@@ -589,8 +589,16 @@ class FileEvent:
         self.type = type
 
 
+class WatchKind(enum.IntFlag):
+    Create = 1
+    Change = 2
+    Delete = 4
+
+
 class FileSystemWatcher:
-    def __init__(self, glob_pattern: str, kind: Union[int, 'WatchKind'] = 7):
+    def __init__(self,
+                 glob_pattern: str,
+                 kind: WatchKind = WatchKind.Create | WatchKind.Change | WatchKind.Delete):
         self.globPattern = glob_pattern
         self.kind = kind
 
@@ -619,7 +627,7 @@ class FoldingRangeAbstract:
         self.lineFoldingOnly = line_folding_only
 
 
-class FoldingRangeKind(enum.Enum):
+class FoldingRangeKind(str, enum.Enum):
     Comment = 'comment'
     Imports = 'imports'
     Region = 'region'
@@ -654,7 +662,7 @@ class HoverAbstract:
         self.contentFormat = content_format
 
 
-class Trace(enum.Enum):
+class Trace(str, enum.Enum):
     Off = 'off'
     Messages = 'messages'
     Verbose = 'verbose'
@@ -683,7 +691,7 @@ class InitializeResult:
         self.capabilities = capabilities
 
 
-class InsertTextFormat(enum.Enum):
+class InsertTextFormat(enum.IntEnum):
     PlainText = 1
     Snippet = 2
 
@@ -718,7 +726,7 @@ class MarkupContent:
         self.value = value
 
 
-class MarkupKind(enum.Enum):
+class MarkupKind(str, enum.Enum):
     PlainText = 'plaintext'
     Markdown = 'markdown'
 
@@ -728,7 +736,7 @@ class MessageActionItem:
         self.title = title
 
 
-class MessageType(enum.Enum):
+class MessageType(enum.IntEnum):
     Error = 1
     Warning = 2
     Info = 3
@@ -884,7 +892,7 @@ class RenameParams:
         self.newName = new_name
 
 
-class ResourceOperationKind(enum.Enum):
+class ResourceOperationKind(str, enum.Enum):
     Create = 'create'
     Rename = 'rename'
     Delete = 'delete'
@@ -1050,7 +1058,7 @@ class SymbolInformation:
         self.deprecated = deprecated
 
 
-class SymbolKind(enum.Enum):
+class SymbolKind(enum.IntEnum):
     File = 1
     Module = 2
     Namespace = 3
@@ -1244,13 +1252,13 @@ class TextDocumentSaveRegistrationOptions(TextDocumentRegistrationOptions):
         self.includeText = include_text
 
 
-class TextDocumentSaveReason(enum.Enum):
+class TextDocumentSaveReason(enum.IntEnum):
     Manual = 1
     AfterDelay = 2
     FocusOut = 3
 
 
-class TextDocumentSyncKind(enum.Enum):
+class TextDocumentSyncKind(enum.IntEnum):
     NONE = 0
     FULL = 1
     INCREMENTAL = 2
@@ -1291,12 +1299,6 @@ class VersionedTextDocumentIdentifier(TextDocumentIdentifier):
     def __init__(self, uri: str, version: NumType):
         super().__init__(uri)
         self.version = version
-
-
-class WatchKind(enum.Enum):
-    Create = 1
-    Change = 2
-    Delete = 4
 
 
 class WillSaveTextDocumentParams:
