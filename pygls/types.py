@@ -30,6 +30,7 @@ https://microsoft.github.io/language-server-protocol/specification#client_unregi
 
 
 import enum
+import sys
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from .features import (CODE_ACTION, CODE_LENS, CODE_LENS_RESOLVE, COMPLETION,
@@ -589,16 +590,25 @@ class FileEvent:
         self.type = type
 
 
-class WatchKind(enum.IntFlag):
-    Create = 1
-    Change = 2
-    Delete = 4
+if sys.version_info >= (3, 6):
+    class WatchKind(enum.IntFlag):
+        Create = 1
+        Change = 2
+        Delete = 4
+    _WatchKindType = WatchKind
+else:
+    # BBB python 3.5 does not have enum.IntFlag
+    class WatchKind:
+        Create = 1
+        Change = 2
+        Delete = 4
+    _WatchKindType = int
 
 
 class FileSystemWatcher:
     def __init__(self,
                  glob_pattern: str,
-                 kind: WatchKind = WatchKind.Create | WatchKind.Change | WatchKind.Delete):
+                 kind: _WatchKindType = WatchKind.Create | WatchKind.Change | WatchKind.Delete):
         self.globPattern = glob_pattern
         self.kind = kind
 
