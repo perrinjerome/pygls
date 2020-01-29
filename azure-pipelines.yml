@@ -8,19 +8,29 @@ trigger:
 
 strategy:
   matrix:
-    Python35:
+    Python35 on linux:
       python.version: '3.5'
-    Python36:
-      python.version: '3.6'
-    Python37:
-      python.version: '3.7'
-    Python38:
-      python.version: '3.8'
-    linux:
       imageName: 'ubuntu-16.04'
-    mac:
-      imageName: 'macos-10.14'
-    windows:
+    Python36 on linux:
+      python.version: '3.6'
+      imageName: 'ubuntu-16.04'
+    Python37 on linux:
+      python.version: '3.7'
+      imageName: 'ubuntu-16.04'
+    Python38 on linux:
+      python.version: '3.8'
+      imageName: 'ubuntu-16.04'
+    Python35 on windows:
+      python.version: '3.5'
+      imageName: 'vs2017-win2016'
+    Python36 on windows:
+      python.version: '3.6'
+      imageName: 'vs2017-win2016'
+    Python37 on windows:
+      python.version: '3.7'
+      imageName: 'vs2017-win2016'
+    Python38 on windows:
+      python.version: '3.8'
       imageName: 'vs2017-win2016'
 
 pool:
