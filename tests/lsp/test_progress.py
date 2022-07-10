@@ -43,7 +43,7 @@ class ConfiguredLS(ClientServer):
         @self.server.feature(
             CODE_LENS,
             CodeLensOptions(resolve_provider=False,
-                            work_done_progress=PROGRESS_TOKEN),
+                            work_done_progress=True),
         )
         def f1(params: CodeLensParams) -> Optional[List[CodeLens]]:
             self.server.lsp.progress.begin(
@@ -71,7 +71,7 @@ def test_capabilities(client_server):
 
     provider = capabilities.code_lens_provider
     assert provider
-    assert provider.work_done_progress == PROGRESS_TOKEN
+    assert provider.work_done_progress is True
 
 
 @ConfiguredLS.decorate()

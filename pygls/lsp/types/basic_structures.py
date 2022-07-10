@@ -472,7 +472,7 @@ class WorkDoneProgressParams(Model):
 
 
 class WorkDoneProgressOptions(Model):
-    work_done_progress: Optional[ProgressToken]
+    work_done_progress: Optional[bool]
 
 
 class PartialResultParams(Model):
