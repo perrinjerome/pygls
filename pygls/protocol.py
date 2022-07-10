@@ -46,14 +46,14 @@ from pygls.lsp.methods import (CANCEL_REQUEST, CLIENT_REGISTER_CAPABILITY,
                                WINDOW_LOG_MESSAGE, WINDOW_SHOW_DOCUMENT, WINDOW_SHOW_MESSAGE,
                                WORKSPACE_APPLY_EDIT, WORKSPACE_CONFIGURATION,
                                WORKSPACE_DID_CHANGE_WORKSPACE_FOLDERS, WORKSPACE_EXECUTE_COMMAND,
-                               WORKSPACE_SEMANTIC_TOKENS_REFRESH)
+                               WORKSPACE_SEMANTIC_TOKENS_REFRESH, WINDOW_WORK_DONE_PROGRESS_CANCEL)
 from pygls.lsp.types import (ApplyWorkspaceEditParams, ApplyWorkspaceEditResponse, Diagnostic,
                              DidChangeTextDocumentParams, DidChangeWorkspaceFoldersParams,
                              DidCloseTextDocumentParams, DidOpenTextDocumentParams,
                              ExecuteCommandParams, InitializeParams, InitializeResult,
                              LogMessageParams, MessageType, PublishDiagnosticsParams,
                              RegistrationParams, ShowMessageParams, UnregistrationParams,
-                             WorkspaceEdit)
+                             WorkDoneProgressCancelParams, WorkspaceEdit)
 from pygls.lsp.types.basic_structures import (ConfigCallbackType, LogTraceParams, SetTraceParams,
                                               Trace)
 from pygls.lsp.types.window import ShowDocumentCallbackType, ShowDocumentParams
@@ -676,6 +676,15 @@ class LanguageServerProtocol(JsonRPCProtocol, metaclass=LSPMeta):
         """Executes commands with passed arguments and returns a value."""
         cmd_handler = self.fm.commands[params.command]
         self._execute_request(msg_id, cmd_handler, params.arguments)
+
+    @lsp_method(WINDOW_WORK_DONE_PROGRESS_CANCEL)
+    def lsp_work_done_progress_cancel(self, params: WorkDoneProgressCancelParams) -> None:
+        """Received a progress cancellation from client."""
+        future = self.progress.tokens.get(params.token)
+        if future is None:
+            logger.warning('Ignoring work done progress cancel for unknown token %s', params.token)
+        else:
+            future.cancel()
 
     def get_configuration(self, params: ConfigurationParams,
                           callback: Optional[ConfigCallbackType] = None) -> Future:
