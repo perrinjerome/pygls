@@ -325,6 +325,8 @@ class LanguageServer(Server):
                                     `ThreadPoolExecutor`
     """
 
+    lsp: LanguageServerProtocol
+
     def __init__(self, loop=None, protocol_cls=LanguageServerProtocol, max_workers: int = 2):
         if not issubclass(protocol_cls, LanguageServerProtocol):
             raise TypeError('Protocol class should be subclass of LanguageServerProtocol')
