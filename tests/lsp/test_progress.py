@@ -17,7 +17,6 @@
 
 from typing import List, Optional
 
-import time
 from pygls.lsp.methods import CODE_LENS, PROGRESS_NOTIFICATION
 from pygls.lsp.types import (
     CodeLens,
@@ -81,8 +80,6 @@ def test_progress_notifications(client_server):
             work_done_token='token',
         ),
     ).result()
-
-    time.sleep(0.1)
 
     assert len(client.notifications) == 3
     assert client.notifications[0].token == 'token'
