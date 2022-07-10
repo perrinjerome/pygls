@@ -71,7 +71,7 @@ class ConfiguredLS(ClientServer):
             return None
 
         @self.client.feature(PROGRESS_NOTIFICATION)
-        def f2(params):
+        async def f2(params):
             self.client.notifications.append(params)
             if params.value['kind'] == 'begin' and params.token == "token_with_cancellation":
                 # client cancels the progress token
@@ -90,7 +90,7 @@ def test_capabilities(client_server):
     assert provider.work_done_progress is True
 
 
-@pytest.mark.skipif(IS_PYODIDE, reason='threads are not available in pyodide.')
+#@pytest.mark.skipif(IS_PYODIDE, reason='threads are not available in pyodide.')
 @ConfiguredLS.decorate()
 def test_progress_notifications(client_server):
     client, _ = client_server
