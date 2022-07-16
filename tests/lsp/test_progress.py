@@ -47,13 +47,25 @@ class ConfiguredLS(ClientServer):
     def __init__(self):
         super().__init__()
         self.client.notifications: List[ProgressParams] = []
+        self.client.method_calls: List[WorkDoneProgressCreateParams] = []
 
         @self.server.feature(
             CODE_LENS,
             CodeLensOptions(resolve_provider=False, work_done_progress=True),
         )
         async def f1(params: CodeLensParams) -> Optional[List[CodeLens]]:
-            token = params.work_done_token
+            if "client_initiated_token" in params.text_document.uri:
+                token = params.work_done_token
+            else:
+                assert "server_initiated_token" in params.text_document.uri
+                token = params.text_document.uri[len("file://") :]
+                if "async" in params.text_document.uri:
+                    await self.server.progress.create_async(token)
+                else:
+                    f = self.server.progress.create(token)
+                    await asyncio.sleep(0.1)
+                    f.result()
+
             assert token
             self.server.lsp.progress.begin(
                 token,
@@ -81,6 +93,17 @@ class ConfiguredLS(ClientServer):
                     WINDOW_WORK_DONE_PROGRESS_CANCEL,
                     WorkDoneProgressCancelParams(token=params.token),
                 )
+
+        @self.client.feature(WINDOW_WORK_DONE_PROGRESS_CREATE)
+        def f3(params: WorkDoneProgressCreateParams):
+            self.client.method_calls.append(params)
+            # XXX return a WorkDoneProgressCreateParams for now,
+            # because pygls.lsp.LSP_METHODS_MAP holds the types from server
+            # perspective, but here we are a client.
+            # This should probably be changed to `return None` once the
+            # problem discussed in https://github.com/openlawlibrary/pygls/pull/201
+            # is addressed
+            return WorkDoneProgressCreateParams(token=params.token)
 
 
 @ConfiguredLS.decorate()
@@ -122,6 +145,42 @@ async def test_progress_notifications(client_server):
 
 
 @pytest.mark.skipif(IS_PYODIDE, reason="threads are not available in pyodide.")
+@pytest.mark.parametrize("registration", ("sync", "async"))
+@ConfiguredLS.decorate()
+async def test_server_initiated_progress_notifications(client_server, registration):
+    client, _ = client_server
+    client.lsp.send_request(
+        CODE_LENS,
+        CodeLensParams(
+            text_document=TextDocumentIdentifier(
+                uri=f"file://server_initiated_token_{registration}"
+            ),
+            work_done_token="token",
+        ),
+    ).result()
+
+    assert [notif.value for notif in client.notifications] == [
+        {
+            "kind": "begin",
+            "title": "starting",
+            "percentage": 0,
+        },
+        {
+            "kind": "report",
+            "message": "doing",
+            "percentage": 50,
+        },
+        {"kind": "end", "message": "done"},
+    ]
+    assert {notif.token for notif in client.notifications} == {
+        f"server_initiated_token_{registration}"
+    }
+    assert [mc.token for mc in client.method_calls] == [
+        f"server_initiated_token_{registration}"
+    ]
+
+
+@pytest.mark.skipif(IS_PYODIDE, reason="threads are not available in pyodide.")
 @ConfiguredLS.decorate()
 def test_progress_cancel_notifications(client_server):
     client, _ = client_server
@@ -143,3 +202,29 @@ def test_progress_cancel_notifications(client_server):
     assert {notif.token for notif in client.notifications} == {
         "token_with_cancellation"
     }
+
+
+@pytest.mark.skipif(IS_PYODIDE, reason="threads are not available in pyodide.")
+@pytest.mark.parametrize("registration", ("sync", "async"))
+@ConfiguredLS.decorate()
+def test_server_initiated_progress_progress_cancel_notifications(
+    client_server, registration
+):
+    client, _ = client_server
+    client.lsp.send_request(
+        CODE_LENS,
+        CodeLensParams(
+            text_document=TextDocumentIdentifier(
+                uri=f"file://server_initiated_token_{registration}_with_cancellation"
+            ),
+        ),
+    ).result()
+
+    assert [notif.value for notif in client.notifications] == [
+        {
+            "kind": "begin",
+            "title": "starting",
+            "percentage": 0,
+        },
+        {"kind": "end", "message": "cancelled"},
+    ]
