@@ -257,13 +257,14 @@ async function executeServerCommand() {
         return
     }
 
-    const commandName = await vscode.window.showQuickPick(knownCommands, { canPickMany: false })
+    const commandName = "calculate.pow"; // await vscode.window.showQuickPick(knownCommands, { canPickMany: false })
     if (!commandName) {
         return
     }
     logger.info(`executing command: '${commandName}'`)
 
-    const result = await vscode.commands.executeCommand(commandName /* if your command accepts arguments you can pass them here */)
+
+    const result = await vscode.commands.executeCommand(commandName, 2, 8)
     logger.info(`${commandName} result: ${JSON.stringify(result, undefined, 2)}`)
 }
 
